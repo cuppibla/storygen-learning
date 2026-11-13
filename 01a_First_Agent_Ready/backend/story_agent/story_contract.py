@@ -71,7 +71,8 @@ class StoryOutput(BaseModel):
                 raise ValueError(f"Scene {scene.index} must contain 25–50 words.")
         if not MIN_WORDS <= word_count(self.story) <= MAX_WORDS:
             raise ValueError(f"The complete story must contain {MIN_WORDS}–{MAX_WORDS} words.")
-        if self.story.split() != " \n\n".join(scene.text for scene in self.scenes).split():
+        expected_story = "\n\n".join(scene.text for scene in self.scenes)
+        if self.story.split() != expected_story.split():
             raise ValueError("The story must contain all six scene texts, unchanged and in order.")
         return self
 
@@ -120,7 +121,8 @@ class FreeStoryOutput(BaseModel):
                 raise ValueError(f"Scene {scene.index} must contain 25–50 words.")
         if not 100 <= word_count(self.story) <= 200:
             raise ValueError("The complete story must contain 100–200 words.")
-        if self.story.split() != " ".join(scene.text for scene in self.scenes).split():
+        expected_story = "\n\n".join(scene.text for scene in self.scenes)
+        if self.story.split() != expected_story.split():
             raise ValueError("The story must contain all four scene texts, unchanged and in order.")
         return self
 
@@ -189,16 +191,16 @@ EXAMPLE_STORY = {
     "schema_version": SCHEMA_VERSION,
     "story": "",
     "main_characters": [
-        {"name": "Pip", "description": "A small round silver robot, basketball-sized, with one cyan circular eye, two short arms with three-fingered hands, four tiny black wheels, and a red scarf tied on the left side."},
+        {"name": "Pip", "description": "A small round silver robot, basketball-sized, with one cyan circular eye, two short arms with three-fingered hands, four tiny black wheels, and a red scarf."},
         {"name": "Marmalade", "description": "A tiny orange tabby kitten with three dark stripes on each cheek, four white paws, round green eyes, a pink nose and a cream-tipped tail."},
     ],
     "scenes": [
-        {"index": 1, "beat": "setup", "title": "A Rainy Round", "description": "Pip and Marmalade beside a leaf-covered city sidewalk at dusk, rain shining under amber streetlights.", "characters": ["Pip", "Marmalade"], "text": "Pip swept leaves along a rainy city sidewalk while Marmalade watched from a dry windowsill. The little robot liked tidy paths, and the kitten liked company. Every evening, they waited for the bakery to open."},
-        {"index": 2, "beat": "inciting_incident", "title": "A Light in the Alley", "description": "Pip noticing a faint golden glow behind a recycling bin in a narrow alley; Marmalade peering around the corner.", "characters": ["Pip", "Marmalade"], "text": "Tonight, a golden blink appeared behind a recycling bin. Pip wondered whether someone had dropped a lantern. Marmalade stepped down, and together they rolled and padded into the alley to investigate the mysterious light."},
-        {"index": 3, "beat": "first_attempt", "title": "The Leaf Bridge", "description": "Pip extending an arm toward a small glowing firefly trapped behind a puddle, using a folded leaf as a bridge while Marmalade holds it steady.", "characters": ["Pip", "Marmalade"], "text": "They found a firefly trapped behind a puddle. Pip offered a folded leaf as a bridge, and Marmalade held it steady with both paws. The firefly crawled closer, glowing hopefully toward the dry pavement."},
-        {"index": 4, "beat": "setback", "title": "A Splash and a Slide", "description": "A raindrop splashing into the puddle and tipping the leaf bridge; Pip bracing the leaf while Marmalade reaches for the firefly.", "characters": ["Pip", "Marmalade"], "text": "Then a fat raindrop splashed down. The leaf tipped, and the firefly slipped backward. Pip's wheels skidded, but he caught the stem. Marmalade crouched beside him, thinking carefully instead of rushing into the water."},
-        {"index": 5, "beat": "climax", "title": "A Better Way Across", "description": "Marmalade anchoring a broad piece of bark while Pip lifts it into a stable bridge; the firefly stepping safely onto dry pavement.", "characters": ["Pip", "Marmalade"], "text": "Marmalade spotted a broad piece of bark. She anchored one end while Pip lifted the other into place. Their wider bridge stayed still, and the firefly stepped across. Pip cheered so loudly his scarf fluttered."},
-        {"index": 6, "beat": "resolution", "title": "Warmth for Three", "description": "Pip, Marmalade and the freed firefly resting beneath the bakery awning, warm bread visible in the window and the rain easing.", "characters": ["Pip", "Marmalade"], "text": "The baker welcomed all three beneath her awning. Marmalade curled beside Pip, and the firefly glowed above them like a tiny star. The path could wait until morning; helping a new friend had made tonight perfect."},
+        {"index": 1, "beat": "setup", "title": "A Rainy Round", "description": "Pip and Marmalade beside a leaf-covered city sidewalk at dusk, rain shining under amber streetlights.", "characters": ["Pip", "Marmalade"], "text": "Pip rolled along the wet sidewalk, his red scarf fluttering as Marmalade trotted beside him. Dusk painted the walkway with warm amber lights, and the whole city smelled like rain and fresh bread."},
+        {"index": 2, "beat": "inciting_incident", "title": "A Light in the Alley", "description": "Pip noticing a faint golden glow behind a recycling bin in a narrow alley; Marmalade peering around a stack of crates.", "characters": ["Pip", "Marmalade"], "text": "Behind a bin, a tiny golden glow blinked between the bricks. Pip tilted his head, and Marmalade's whiskers twitched as both friends followed the mysterious light into the alley."},
+        {"index": 3, "beat": "first_attempt", "title": "The Leaf Bridge", "description": "Pip extending an arm toward a small glowing firefly trapped behind a puddle, using a folded leaf as a bridge.", "characters": ["Pip", "Marmalade"], "text": "Pip balanced a broad leaf across a puddle, trying to help the glowing firefly hop to safety. Marmalade crouched low, tail quivering with excitement, ready to help his friend."},
+        {"index": 4, "beat": "setback", "title": "A Splash and a Slide", "description": "A raindrop splashing into the puddle and tipping the leaf bridge; Pip bracing the leaf while Marmalade reaches for the firefly.", "characters": ["Pip", "Marmalade"], "text": "A sudden raindrop made the puddle jump, tipping the leaf bridge sideways. Pip wobbled, nearly losing his balance, while Marmalade lunged forward, paws slipping on the slick stones."},
+        {"index": 5, "beat": "climax", "title": "A Better Way Across", "description": "Marmalade anchoring a broad piece of bark while Pip lifts it into a stable bridge; the firefly stepping safely across.", "characters": ["Pip", "Marmalade"], "text": "Marmalade snapped into action, bracing a flat bark as a sturdy bridge. Pip steadied it with both arms, and the firefly drifted over the water, blinking brighter as the path finally held."},
+        {"index": 6, "beat": "resolution", "title": "Warmth for Three", "description": "Pip, Marmalade and the freed firefly resting beneath the bakery awning, warm bread visible in the window and the city glowing softly around them.", "characters": ["Pip", "Marmalade"], "text": "The firefly floated free and circled above them in a warm golden loop. Under the bakery awning, Pip and Marmalade shared the glow together, their adventure ending in a cozy little moment of friendship."},
     ],
 }
 EXAMPLE_STORY["story"] = "\n\n".join(scene["text"] for scene in EXAMPLE_STORY["scenes"])
