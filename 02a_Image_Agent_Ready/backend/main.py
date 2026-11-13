@@ -23,6 +23,9 @@ from contextlib import asynccontextmanager
 from story_agent.agent import root_agent as story_agent
 from story_image_agent.agent import root_agent as image_agent  # New image agent
 
+from story_agent.story_contract import SCENE_COUNT, StoryValidationError, format_story_text
+from story_agent.story_generation import create_free_story_runner, generate_free_story, generate_validated_story
+
 # Load environment variables
 load_dotenv()
 
@@ -41,7 +44,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origin_regex="https?://.*(localhost|run\.app)(:\d+)?|https?://.*\.run\.app",  # Allow localhost and all Cloud Run domains
     allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Next.js default ports
-    allow_credentials=True,
+    allow_credentials=False,  # No cookie auth; do not combine credentialed CORS with wildcard origins.
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -49,109 +52,62 @@ app.add_middleware(
 # Initialize session service and agents
 project_id = os.getenv("GOOGLE_CLOUD_PROJECT") or os.getenv("GOOGLE_CLOUD_PROJECT_ID")
 
-# Initialize agent runners
-story_runner = None
+# Story generation works independently of image credentials.
+story_runner = InMemoryRunner(app_name=APP_NAME, agent=story_agent)
 image_runner = None
+try:
+    image_runner = InMemoryRunner(app_name=APP_NAME, agent=image_agent)
+except Exception as exc:
+    logger.warning("Image generation unavailable (%s); see SETUP.md.", type(exc).__name__)
 
-if project_id:
-    try:
-        # Initialize story agent runner (existing)
-        story_runner = InMemoryRunner(app_name=APP_NAME, agent=story_agent)
-
-        # Initialize new image agent runner
-        image_runner = InMemoryRunner(app_name=APP_NAME, agent=image_agent)
-
-        print("✅ New Architecture initialized: StoryAgent + CustomImageAgent")
-        print(f"🎨 Custom Image Agent ready for direct tool execution")
-    except Exception as e:
-        print(f"⚠️ Warning: Could not initialize agents: {e}")
-        print("📖 Story generation may not work properly")
-else:
-    print("💡 To enable image generation, set GOOGLE_CLOUD_PROJECT_ID in your .env file")
-
-
-async def run_new_agent_workflow(websocket: WebSocket, user_id: str, keywords: str):
+async def run_new_agent_workflow(websocket: WebSocket, user_id: str, keywords: str | dict, request_id: str | None = None, *, free: bool = False):
     """
     New agent-based workflow:
     1. StoryAgent generates structured story with scene data
     2. New ImageAgent generates images for each scene using conversational AI
     3. Stream results to frontend as they're ready
     """
-    logger.info(f"🚀 Starting new agent workflow for user {user_id} with keywords: '{keywords}'")
+    logger.info(f"Starting new agent workflow for user for user {user_id}")
 
-    if not story_runner or not image_runner:
+    if not story_runner:
         await websocket.send_text(json.dumps({
             "type": "error",
+            "request_id": request_id,
             "message": "Agent runners not properly initialized"
         }))
         return
 
-    # Step 1: Generate structured story using StoryAgent (same as before)
-    story_data = None
+    # Step 1: Generate and validate all six scenes before spending image quota.
     try:
-        logger.info("📖 Generating story with StoryAgent...")
-        story_session = await story_runner.session_service.create_session(
-            app_name=APP_NAME,
-            user_id=f"{user_id}_story"
-        )
-        story_content = Content(role="user", parts=[Part(text=f"Keywords: {keywords}")])
-
-        story_response = ""
-        async for event in story_runner.run_async(
-            user_id=f"{user_id}_story",
-            session_id=story_session.id,
-            new_message=story_content
-        ):
-            if event.content and event.content.parts:
-                for part in event.content.parts:
-                    if part.text:
-                        story_response += part.text
-
-        # Parse the JSON response from StoryAgent
-        try:
-            # Clean the response - remove markdown code blocks if present
-            cleaned_response = story_response.strip()
-            if cleaned_response.startswith("```json"):
-                cleaned_response = cleaned_response[7:]  # Remove ```json
-            if cleaned_response.endswith("```"):
-                cleaned_response = cleaned_response[:-3]  # Remove ```
-            cleaned_response = cleaned_response.strip()
-
-            story_data = json.loads(cleaned_response)
-            logger.info(f"✅ Story generated successfully with {len(story_data.get('scenes', []))} scenes")
-
-            # Reconstruct story text with scene markers for frontend compatibility
-            scenes = story_data.get("scenes", [])
-            if scenes:
-                # Build story text with [SCENE X] markers that frontend expects
-                story_with_markers = ""
-                for scene in scenes:
-                    scene_index = scene.get("index", 1)
-                    scene_text = scene.get("text", "")
-                    story_with_markers += f"[SCENE {scene_index}]\n{scene_text}\n\n"
-                story_text = story_with_markers.strip()
-            else:
-                # Fallback to the raw story if no scenes
-                story_text = story_data.get("story", "")
-
-            await websocket.send_text(json.dumps({
-                "type": "story_complete",
-                "data": story_text
-            }))
-            logger.info(f"📤 Sent story text with scene markers to frontend ({len(story_text)} characters)")
-
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse story JSON: {e}")
-            logger.error(f"Raw response: {story_response[:500]}...")
-            raise Exception("Story agent returned invalid JSON format")
-
-    except Exception as e:
-        logger.error(f"Story generation failed for user {user_id}: {e}")
-        await websocket.send_text(json.dumps({"type": "error", "message": f"Story generation failed: {e}"}))
+        if free:
+            free_runner = create_free_story_runner(APP_NAME)
+            story_data = await generate_free_story(free_runner, user_id, keywords, APP_NAME)
+        else:
+            story_data = await generate_validated_story(story_runner, user_id, keywords, APP_NAME)
+        await websocket.send_text(json.dumps({
+            "type": "story_complete",
+            "request_id": request_id,
+            "data": format_story_text(story_data),
+        }))
+    except StoryValidationError as exc:
+        logger.warning("Story contract validation failed: %s", exc)
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "request_id": request_id,
+            "message": f"The story needs a small rewrite: {exc}",
+        }))
+        return
+    except Exception as exc:
+        logger.error("Story generation failed (%s). Check credentials, quota and model access.", type(exc).__name__)
+        await websocket.send_text(json.dumps({
+            "type": "error",
+            "request_id": request_id,
+            "message": "Story generation is unavailable. Check the backend configuration and try again.",
+        }))
         return
 
     # Step 2: Generate images using CustomImageAgent
-    if story_data and story_data.get("scenes"):
+    if story_data and image_runner and story_data.get("scenes"):
         logger.info("🎨 Starting image generation with CustomImageAgent...")
 
         # Extract character descriptions from story data
@@ -162,7 +118,7 @@ async def run_new_agent_workflow(websocket: WebSocket, user_id: str, keywords: s
                 char_desc = character.get("description", "")
                 if char_name and char_desc:
                     character_descriptions[char_name] = char_desc
-            logger.info(f"📚 Found {len(character_descriptions)} main character(s): {', '.join(character_descriptions.keys())}")
+            logger.info("Identified %d story characters", len(character_descriptions))
 
         # Create image session
         image_session = await image_runner.session_service.create_session(
@@ -170,26 +126,28 @@ async def run_new_agent_workflow(websocket: WebSocket, user_id: str, keywords: s
             user_id=f"{user_id}_image"
         )
 
+        reference_image_base64 = None
         for scene in story_data["scenes"]:
             scene_index = scene.get("index", 1) - 1  # Convert to 0-based index
             scene_description = scene.get("description", "")
             scene_title = scene.get("title", "Unknown")
 
             try:
-                logger.info(f"🖼️ Generating image for scene {scene_index + 1}: {scene_title}")
+                logger.info("Generating image for scene %d", scene_index + 1)
 
-                logger.info(f"📝 Processing scene description: {scene_description[:100]}...")
-                logger.info(f"👥 Using character descriptions: {list(character_descriptions.keys())}")
 
                 # Create content with all necessary data for CustomImageAgent
                 prompt_data = {
                     "scene_title": scene_title,
                     "scene_description": scene_description,
-                    "character_descriptions": character_descriptions
+                    "character_descriptions": character_descriptions,
+                    "scene": scene,
+                    "reference_image_base64": reference_image_base64,
                 }
                 image_content = Content(role="user", parts=[Part(text=json.dumps(prompt_data))])
 
                 # Process all events from the custom agent
+                image_data = None
                 image_data_str = ""
                 async for event in image_runner.run_async(
                     user_id=f"{user_id}_image",
@@ -197,7 +155,7 @@ async def run_new_agent_workflow(websocket: WebSocket, user_id: str, keywords: s
                     new_message=image_content
                 ):
                     logger.info(f"📥 Event from CustomImageAgent: {event.author if hasattr(event, 'author') else 'unknown'}")
-                    if event.content and event.content.parts:
+                    if event.is_final_response() and event.content and event.content.parts:
                         for part in event.content.parts:
                             if part.text:
                                 image_data_str += part.text
@@ -212,6 +170,8 @@ async def run_new_agent_workflow(websocket: WebSocket, user_id: str, keywords: s
                 else:
                     logger.warning("⚠️ Agent did not yield any content in events")
 
+                if image_data and image_data.get("success") and reference_image_base64 is None:
+                    reference_image_base64 = image_data.get("reference_image_base64")
                 if image_data and image_data.get("images"):
                     for img_data in image_data["images"]:
                         image_payload = {
@@ -232,6 +192,7 @@ async def run_new_agent_workflow(websocket: WebSocket, user_id: str, keywords: s
 
                         await websocket.send_text(json.dumps({
                             "type": "image_generated",
+                            "request_id": request_id,
                             "data": image_payload
                         }))
                         logger.info(f"📤 Sent image for scene {scene_index + 1} to frontend")
@@ -239,32 +200,45 @@ async def run_new_agent_workflow(websocket: WebSocket, user_id: str, keywords: s
                     raise Exception("Image agent did not return valid image data")
 
             except Exception as e:
-                logger.error(f"Image generation failed for scene {scene_index + 1}: {e}")
+                logger.error("Image generation failed for scene %d (%s)", scene_index + 1, type(e).__name__)
                 # Send error placeholder so frontend knows this slot exists
                 error_payload = {
                     "index": scene_index,
                     "scene_title": scene_title,
                     "format": "png",
                     "stored_in_bucket": False,
-                    "error": f"Image generation failed: {str(e)}",
+                    "error": "Illustration unavailable. Please try again.",
                     "placeholder": True
                 }
                 await websocket.send_text(json.dumps({
                     "type": "image_generated",
+                    "request_id": request_id,
                     "data": error_payload
                 }))
                 logger.info(f"📤 Sent error placeholder for scene {scene_index + 1}")
 
-            # Small delay between images to avoid rate limiting
-            if scene_index < len(story_data["scenes"]) - 1:
-                await asyncio.sleep(2)
 
         logger.info("🎨 All image generation completed with New ImageAgent")
     else:
         logger.warning("⚠️ No scenes found in story data, skipping image generation")
 
+    # Missing image configuration is visible per scene; keep the validated story.
+    if story_data and not image_runner:
+        for scene in story_data["scenes"]:
+            await websocket.send_text(json.dumps({
+                "type": "image_generated",
+                "request_id": request_id,
+                "data": {
+                    "index": scene["index"] - 1,
+                    "scene_title": scene["title"],
+                    "format": "png",
+                    "placeholder": True,
+                    "error": "Images are not configured. See SETUP.md.",
+                },
+            }))
+
     # Send completion notification
-    await websocket.send_text(json.dumps({"type": "turn_complete", "turn_complete": True}))
+    await websocket.send_text(json.dumps({"type": "turn_complete", "turn_complete": True, "request_id": request_id}))
 
 
 @app.websocket("/ws/{user_id}")
@@ -277,6 +251,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
         user_id: Unique user identifier
     """
     await websocket.accept()
+    request_id = None
     logger.info(f"Client #{user_id} connected to NEW backend")
 
     try:
@@ -290,26 +265,36 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
             # Receive message from client
             message_json = await websocket.receive_text()
             message = json.loads(message_json)
+            if not isinstance(message, dict):
+                await websocket.send_text(json.dumps({"type": "error", "message": "Expected a JSON object.", "request_id": request_id}))
+                continue
+            raw_request_id = message.get("request_id")
+            request_id = raw_request_id if isinstance(raw_request_id, str) and 0 < len(raw_request_id) <= 100 else None
 
             message_type = message.get("type")
             data = message.get("data", "")
 
-            if message_type == "generate_story":
+            if message_type in ("generate_story", "generate_free_story"):
                 try:
                     # Send processing notification
                     await websocket.send_text(json.dumps({
                         "type": "processing",
+                        "request_id": request_id,
                         "message": "Generating story and images with NEW agents..."
                     }))
 
                     # Run the new agent-based workflow
-                    await run_new_agent_workflow(websocket, user_id, data)
+                    if message_type == "generate_free_story":
+                        await run_new_agent_workflow(websocket, user_id, data, request_id=request_id, free=True)
+                    else:
+                        await run_new_agent_workflow(websocket, user_id, data, request_id=request_id)
 
                 except Exception as e:
-                    logger.error(f"Error in new websocket workflow for user {user_id}: {e}")
+                    logger.error("Workflow error (%s)", type(e).__name__)
                     await websocket.send_text(json.dumps({
                         "type": "error",
-                        "message": f"NEW workflow failed: {str(e)}"
+                        "request_id": request_id,
+                        "message": "Story generation is unavailable. Please try again."
                     }))
 
             elif message_type == "ping":
@@ -322,11 +307,12 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
     except WebSocketDisconnect:
         logger.info(f"Client #{user_id} disconnected from NEW backend")
     except Exception as e:
-        logger.error(f"WebSocket error for user {user_id} on NEW backend: {e}")
+        logger.error("Workflow error (%s)", type(e).__name__)
         try:
             await websocket.send_text(json.dumps({
                 "type": "error",
-                "message": f"NEW server error: {str(e)}"
+                "request_id": request_id,
+                "message": "Story generation is unavailable. Please try again."
             }))
         except:
             pass

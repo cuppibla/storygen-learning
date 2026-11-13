@@ -11,6 +11,10 @@ project_id: "sdlcv3"
 workload_identity_provider: "projects/670096104921/locations/global/workloadIdentityPools/github-pool/providers/github-provider-fixed"
 service_account_email: "github-actions@sdlcv3.iam.gserviceaccount.com"
 
+# Configurable model IDs (no credentials belong in this file)
+story_model: "gemini-3.8-flash"
+image_model: "gemini-nano-banana-2.1"
+
 # Resource names
 genmedia_bucket: "storygen-workshop"
 secret_manager: "sdlcv3-api-secret"

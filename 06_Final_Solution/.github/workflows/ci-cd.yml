@@ -9,8 +9,34 @@ on:
 # Environment variables will be set dynamically from config file
 
 jobs:
+  validate:
+    name: Validate six-scene contract
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements-dev.txt
+      - run: python tools/sync_workshop.py --check
+      - run: python -m pytest -q
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --experimental-strip-types --test tests/story-contract.test.mjs
+      - run: npm ci --no-audit --no-fund
+        working-directory: 04b_Manual_Deployment_Done/frontend
+      - run: npx tsc --noEmit --pretty false
+        working-directory: 04b_Manual_Deployment_Done/frontend
+      - run: npm run build
+        working-directory: 04b_Manual_Deployment_Done/frontend
+      - run: node tests/render-story-frames.mjs
+
   setup-infrastructure:
     name: Setup Infrastructure
+    needs: validate
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -82,39 +108,25 @@ jobs:
           if ! gsutil ls "gs://${{ env.BUCKET_NAME }}" &>/dev/null; then
             echo "Creating storage bucket..."
             gsutil mb -p ${{ env.PROJECT_ID }} -l ${{ env.REGION }} "gs://${{ env.BUCKET_NAME }}"
-            gsutil iam ch allUsers:objectViewer "gs://${{ env.BUCKET_NAME }}"
+            # Keep generated images private. The app uses signed URLs or inline fallback.
           else
             echo "✅ Storage bucket already exists"
           fi
 
-      - name: Setup Secret Manager
+      - name: Verify Secret Manager secret
         run: |
-          echo "🔐 Setting up Secret Manager..."
-          if ! gcloud secrets describe ${{ env.SECRET_NAME }} \
-               --project=${{ env.PROJECT_ID }} &>/dev/null; then
-            echo "Creating secret for Google API key..."
-            gcloud secrets create ${{ env.SECRET_NAME }} \
-              --replication-policy="automatic" \
-              --project=${{ env.PROJECT_ID }}
-            
-            # Set the API key value from repository variables
-            if [ -n "${{ vars.GOOGLE_API_KEY }}" ]; then
-              echo "Setting API key value..."
-              echo -n "${{ vars.GOOGLE_API_KEY }}" | gcloud secrets versions add ${{ env.SECRET_NAME }} \
-                --data-file=- \
-                --project=${{ env.PROJECT_ID }}
-            else
-              echo "⚠️ GOOGLE_API_KEY not set. Please add it to repository variables."
-            fi
-          else
-            echo "✅ Secret Manager secret already exists"
-            # Update the secret value if provided
-            if [ -n "${{ vars.GOOGLE_API_KEY }}" ]; then
-              echo "Updating API key value..."
-              echo -n "${{ vars.GOOGLE_API_KEY }}" | gcloud secrets versions add ${{ env.SECRET_NAME }} \
-                --data-file=- \
-                --project=${{ env.PROJECT_ID }}
-            fi
+          # Provision the key outside GitHub Actions. Never store API keys in
+          # repository variables, workflow YAML, logs, or build arguments.
+          if ! gcloud secrets describe "${{ env.SECRET_NAME }}" \
+               --project="${{ env.PROJECT_ID }}" >/dev/null; then
+            echo "Missing Secret Manager secret. Follow SETUP.md before deploying."
+            exit 1
+          fi
+          if ! gcloud secrets versions list "${{ env.SECRET_NAME }}" \
+               --project="${{ env.PROJECT_ID }}" \
+               --filter="state=ENABLED" --format="value(name)" | grep -q .; then
+            echo "Secret has no enabled version. Add one securely using SETUP.md."
+            exit 1
           fi
 
   build-and-deploy-backend:
@@ -174,6 +186,9 @@ jobs:
             --set-env-vars="GENMEDIA_BUCKET=${{ env.BUCKET_NAME }}" \
             --set-env-vars="GOOGLE_GENAI_USE_VERTEXAI=FALSE" \
             --set-env-vars="GOOGLE_CLOUD_REGION=${{ env.REGION }}" \
+            --set-env-vars="STORY_MODEL=${{ env.STORY_MODEL }}" \
+            --set-env-vars="IMAGE_MODEL=${{ env.IMAGE_MODEL }}" \
+            --timeout=600 \
             --set-secrets="GOOGLE_API_KEY=${{ env.SECRET_NAME }}:latest" \
             --memory=${{ env.BACKEND_MEMORY }} \
             --cpu=${{ env.BACKEND_CPU }} \
@@ -229,13 +244,11 @@ jobs:
           echo "🔗 Using backend URL: $BACKEND_URL"
           
           cd 04b_Manual_Deployment_Done/frontend
-          # Create .env.local with backend URL for build
-          cat > .env.local << EOF
-          NEXT_PUBLIC_BACKEND_URL=${BACKEND_URL}
-          EOF
-          
+          # NEXT_PUBLIC_* must be a Docker build argument, not just a runtime env var.
+          FRONTEND_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.FRONTEND_IMAGE_NAME }}:latest"
           gcloud builds submit \
-            --tag ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.FRONTEND_IMAGE_NAME }}:latest \
+            --config=cloudbuild.yaml \
+            --substitutions="_BACKEND_URL=${BACKEND_URL},_IMAGE_NAME=${FRONTEND_IMAGE}" \
             --project=${{ env.PROJECT_ID }}
           echo "✅ Frontend image built and pushed successfully"
 

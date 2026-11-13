@@ -6,25 +6,49 @@
   "custom_evaluators": {
     "json_structure_validator": {
       "description": "Validates that the response is valid JSON with required story structure",
-      "required_fields": ["story", "main_characters", "scenes"],
-      "scene_count": 4,
-      "character_fields": ["name", "description"]
+      "required_fields": [
+        "schema_version",
+        "story",
+        "main_characters",
+        "scenes"
+      ],
+      "scene_count": 6,
+      "character_fields": [
+        "name",
+        "description"
+      ],
+      "scene_fields": [
+        "index",
+        "beat",
+        "title",
+        "description",
+        "characters",
+        "text"
+      ],
+      "scene_beats": [
+        "setup",
+        "inciting_incident",
+        "first_attempt",
+        "setback",
+        "climax",
+        "resolution"
+      ]
     },
     "story_quality_metrics": {
       "description": "Evaluates story quality and keyword integration",
-      "min_word_count": 80,
-      "max_word_count": 250,
+      "min_word_count": 180,
+      "max_word_count": 270,
       "keyword_integration_threshold": 0.8
     }
   },
   "evaluation_notes": {
     "story_agent_specifics": [
-      "Response must be valid JSON parseable",
-      "Must contain exactly 4 scenes with indices 1-4",
-      "Each scene must have title, description, text fields",
-      "Main characters array must have detailed visual descriptions",
-      "Story text should integrate provided keywords naturally",
-      "Total word count should be 100-200 words as specified in agent instructions"
+      "Schema version 2; valid JSON with exactly six scenes indexed 1\u20136",
+      "Beats: setup, inciting_incident, first_attempt, setback, climax, resolution",
+      "Each scene text is 25\u201350 words; total story is 180\u2013270 words",
+      "Only declared main characters appear in scene.characters",
+      "The story equals the six scene texts joined in order",
+      "Golden responses are regression fixtures, not proof of live model quality"
     ],
     "trajectory_expectations": [
       "Story agent uses direct LLM response (no tools)",

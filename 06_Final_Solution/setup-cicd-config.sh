@@ -216,6 +216,8 @@ secret_manager: "$SECRET_NAME"
 
 # Optional configuration (can be overridden with GitHub variables)
 gcp_region: "$REGION"
+story_model: "${STORY_MODEL:-gemini-3.8-flash}"
+image_model: "${IMAGE_MODEL:-gemini-nano-banana-2.1}"
 artifact_repo: "storygen-repo"
 backend_service_name: "genai-backend"
 frontend_service_name: "genai-frontend"

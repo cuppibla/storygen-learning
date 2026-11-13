@@ -6,11 +6,19 @@
   "custom_evaluators": {
     "image_generation_validator": {
       "description": "Validates successful image generation and proper tool usage",
-      "required_response_fields": ["success", "images_generated"],
-      "expected_tool_calls": ["generate_image"],
+      "required_response_fields": [
+        "success",
+        "images_generated"
+      ],
+      "expected_tool_calls": [
+        "generate_image"
+      ],
       "success_response_validation": {
         "success": true,
-        "images_generated": {"min": 1, "max": 4}
+        "images_generated": {
+          "min": 1,
+          "max": 1
+        }
       }
     },
     "error_handling_validator": {
@@ -28,21 +36,21 @@
     "prompt_construction_validator": {
       "description": "Validates that prompts are properly constructed with style prefix and character details",
       "required_prompt_elements": [
-        "Children's book cartoon illustration",
-        "bright vibrant colors",
-        "simple shapes",
-        "friendly characters"
+        "Children's picture-book illustration for ages 4\u20138",
+        "warm watercolor textures",
+        "soft outlines",
+        "Character identity guide"
       ]
     }
   },
   "evaluation_notes": {
     "image_agent_specifics": [
-      "Must call ImagenTool (generate_image) with proper parameters",
-      "Response must be valid JSON with success indicator",
-      "Successful responses should include image data (GCS URL or base64)",
-      "Error responses should have success=false and error message",
-      "Tool calls should include scene description in prompt",
-      "Character descriptions should be integrated into prompt when provided"
+      "Use the Gemini image adapter (legacy class name ImagenTool)",
+      "One image per call; six calls for a complete story",
+      "Pass the first successful scene image as reference to later scenes",
+      "Only include characters listed in scene.characters",
+      "Return success=false on errors; never invent image URLs",
+      "GCS objects remain private; signed URLs or inline fallback"
     ],
     "trajectory_expectations": [
       "Single tool call to generate_image",
