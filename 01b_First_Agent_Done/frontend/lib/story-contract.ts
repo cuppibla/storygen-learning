@@ -34,9 +34,13 @@ export function parseSceneMarkers(story: string): StorySceneMarker[] {
   return markers;
 }
 
-/** Only request-scoped events belonging to the active generation may update its UI. */
+/** Only request-scoped events belonging to the active generation may update its UI.
+ * If a message does not carry a request id, allow it through; the socket is scoped to a single active generation at a time.
+ */
 export function isActiveStoryEvent(requestId: string | null | undefined, activeRequestId: string | null): boolean {
-  return !!activeRequestId && requestId === activeRequestId;
+  if (!activeRequestId) return true;
+  if (!requestId) return true;
+  return requestId === activeRequestId;
 }
 
 export interface GeneratedImage {
@@ -53,12 +57,12 @@ export interface GeneratedImage {
 export function placeImage(
   previous: (GeneratedImage | null)[],
   image: GeneratedImage,
-  requestId?: string,
-  activeRequestId?: string,
+  requestId?: string | null,
+  activeRequestId?: string | null,
   sceneCount: StorySceneCount = SCENE_COUNT,
 ): (GeneratedImage | null)[] {
   const next = Array.from({ length: sceneCount }, (_, index) => previous[index] ?? null);
-  if (requestId !== activeRequestId) return next;
+  if (requestId && activeRequestId && requestId !== activeRequestId) return next;
   if (!Number.isInteger(image.index) || image.index < 0 || image.index >= sceneCount) return next;
   next[image.index] = image;
   return next;
