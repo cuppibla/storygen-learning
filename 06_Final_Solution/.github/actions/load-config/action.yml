@@ -39,6 +39,8 @@ runs:
         FRONTEND_CPU=$(yq '.frontend_cpu' "$CONFIG_FILE")
         MIN_INSTANCES=$(yq '.min_instances' "$CONFIG_FILE")
         MAX_INSTANCES=$(yq '.max_instances' "$CONFIG_FILE")
+        STORY_MODEL=$(yq '.story_model // "gemini-3.8-flash"' "$CONFIG_FILE")
+        IMAGE_MODEL=$(yq '.image_model // "gemini-nano-banana-2.1"' "$CONFIG_FILE")
         
         # Validate required values
         if [ "$PROJECT_ID" = "PLACEHOLDER_PROJECT_ID" ] || [ "$PROJECT_ID" = "null" ]; then
@@ -64,5 +66,7 @@ runs:
         echo "FRONTEND_CPU=$FRONTEND_CPU" >> $GITHUB_ENV
         echo "MIN_INSTANCES=$MIN_INSTANCES" >> $GITHUB_ENV
         echo "MAX_INSTANCES=$MAX_INSTANCES" >> $GITHUB_ENV
+        echo "STORY_MODEL=$STORY_MODEL" >> $GITHUB_ENV
+        echo "IMAGE_MODEL=$IMAGE_MODEL" >> $GITHUB_ENV
         
         echo "✅ Configuration loaded successfully"

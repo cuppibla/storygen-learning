@@ -1,0 +1,13 @@
+# Python 3.11+; tested together for the six-scene contract and Gemini image API.
+google-adk==1.39.1
+google-genai==2.34.0
+google-cloud-aiplatform==1.165.1
+google-cloud-storage==3.17.1
+fastapi==0.133.0
+pydantic==2.12.5
+uvicorn[standard]==0.54.0
+gunicorn==23.0.0
+websockets==15.0.1
+python-multipart==0.0.33
+python-dotenv==1.2.1
+certifi==2026.10.23

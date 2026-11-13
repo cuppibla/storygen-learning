@@ -5,7 +5,7 @@
 # This script configures everything needed for GitHub Actions CI/CD with Google Cloud:
 # • Workload Identity Federation (secure keyless authentication)  
 # • Service Account with comprehensive permissions (Vertex AI, Cloud Run, Storage, etc.)
-# • Cloud Storage bucket for Imagen-generated images
+# • Private Cloud Storage bucket for Gemini-generated images
 # • Secret Manager for secure API key storage
 # • All required Google Cloud APIs
 #
@@ -346,7 +346,7 @@ echo -e "${CYAN}GCP_SERVICE_ACCOUNT_EMAIL:${NC}"
 echo "$SERVICE_ACCOUNT_EMAIL"
 echo ""
 echo -e "${CYAN}GOOGLE_API_KEY:${NC}"
-echo "(Get from https://aistudio.google.com/)"
+echo "Do not add this to GitHub. Provision it in Secret Manager using SETUP.md."
 echo ""
 
 echo -e "${BLUE}📊 Step 2: Add Repository Variables${NC}"
@@ -370,12 +370,12 @@ echo ""
 echo -e "${CYAN}📝 Alternative manual approach:${NC}"
 echo "• Get your Gemini API key from: https://aistudio.google.com/"
 echo "• Add API key to Secret Manager manually:"
-echo -e "   ${YELLOW}echo 'YOUR_API_KEY' | gcloud secrets versions add $SECRET_NAME --data-file=- --project=$PROJECT_ID${NC}"
+echo -e "   ${YELLOW}printf '%s' "$KEY" | gcloud secrets versions add $SECRET_NAME --data-file=- --project=$PROJECT_ID${NC}"
 echo ""
 
 echo -e "${GREEN}🔗 Integration Summary:${NC}"
 echo "• Backend connects to bucket via GENMEDIA_BUCKET environment variable"
-echo "• Imagen images automatically stored in: gs://$BUCKET_NAME"
+echo "• Gemini images optionally stored privately in: gs://$BUCKET_NAME"
 echo "• Frontend displays images from GCS URLs with base64 fallback"
 echo "• Secure keyless authentication via Workload Identity Federation"
 echo ""
@@ -411,7 +411,7 @@ GCP_SERVICE_ACCOUNT_EMAIL:
 $SERVICE_ACCOUNT_EMAIL
 
 GOOGLE_API_KEY:
-(Get from https://aistudio.google.com/)
+Do not store in GitHub; provision in Secret Manager (see SETUP.md).
 
 ## GitHub Repository Variables  
 Add at: https://github.com/$GITHUB_USERNAME/$REPO_NAME/settings/variables/actions
@@ -428,8 +428,7 @@ SECRET_NAME: $SECRET_NAME
 1. Add above secrets and variables to GitHub
 2. Get Gemini API key: https://aistudio.google.com/
 3. Add API key to Secret Manager:
-   echo 'YOUR_API_KEY' | gcloud secrets versions add $SECRET_NAME --data-file=- --project=$PROJECT_ID
-4. Add same API key as GOOGLE_API_KEY in GitHub
+   printf '%s' "$KEY" | gcloud secrets versions add $SECRET_NAME --data-file=- --project=$PROJECT_ID
 5. Push to main branch - CI/CD will deploy automatically
 
 ## Validation

@@ -11,12 +11,15 @@ out/
 build/
 dist/
 
-# Environment variables
+# Environment variables and local credentials (examples are safe to track)
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+*.tfstate
+*.tfstate.*
 
 # StoryGen configuration files (keep examples)
 config.env
@@ -60,6 +63,8 @@ venv.bak/
 *.swp
 *.swo
 *~
+*.tsbuildinfo
+setup-summary-*.txt
 
 # OS
 .DS_Store

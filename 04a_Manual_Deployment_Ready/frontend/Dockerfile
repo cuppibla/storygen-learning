@@ -1,34 +1,12 @@
-# 1. Build Stage: Install dependencies and build the Next.js application
-FROM node:18-alpine AS builder
-
+FROM node:22-alpine
 WORKDIR /app
-
-# Copy package.json and package-lock.json
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the application source code
+ENV NEXT_TELEMETRY_DISABLED=1
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 COPY . .
-
-# Build the Next.js application for production
-# This command will also be used to pass in the backend URL at build time
+# NEXT_PUBLIC_* values are compiled into the browser bundle at build time.
+ARG NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
 RUN npm run build
-
-# 2. Production Stage: Create a smaller image with only the necessary files
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Copy the built application from the builder stage
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/node_modules ./node_modules
-
-# Expose the port the app runs on
 EXPOSE 3000
-
-# Start the application
-CMD ["npm", "start"] 
+CMD ["npm", "start", "--", "--hostname", "0.0.0.0"]

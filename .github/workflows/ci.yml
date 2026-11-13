@@ -1,0 +1,44 @@
+name: Six-scene checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - run: python tools/sync_workshop.py --check
+      - run: python -m pytest -q
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --experimental-strip-types --test tests/story-contract.test.mjs
+  frontend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        snapshot: [01a_First_Agent_Ready, 04b_Manual_Deployment_Done]
+    defaults:
+      run:
+        working-directory: ${{ matrix.snapshot }}/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: ${{ matrix.snapshot }}/frontend/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npx tsc --noEmit --pretty false
+      - run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+      - run: node ../../tests/render-story-frames.mjs
+        if: matrix.snapshot == '04b_Manual_Deployment_Done'

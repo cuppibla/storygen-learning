@@ -1,17 +1,17 @@
 {
   "eval_set_id": "image_agent_comprehensive_evalset",
-  "name": "Story Image Agent Comprehensive Evaluation Set", 
+  "name": "Story Image Agent Comprehensive Evaluation Set",
   "description": "Comprehensive evaluation scenarios for story_image_agent covering various input formats, character consistency, and error handling",
   "eval_cases": [
     {
       "eval_id": "multi_turn_story_visualization",
       "conversation": [
         {
-          "invocation_id": "visual-session-001",
+          "invocation_id": "scene-001",
           "user_content": {
             "parts": [
               {
-                "text": "{\"scene_description\": \"Standing before a towering enchanted castle with twisted magical spires, mystical atmosphere with glowing towers\", \"character_descriptions\": {\"Sir Aria\": \"Young female knight with shoulder-length auburn hair in a practical braid, kind hazel eyes with determined expression, medium height and athletic build, wearing polished silver chainmail with blue tunic underneath, brown leather boots and gloves, carries a simple wooden shield with her family crest (a golden tree), has a confident posture but gentle smile\"}}"
+                "text": "{\"scene_description\": \"Pip and Marmalade beside a leaf-covered city sidewalk at dusk, rain shining under amber streetlights.\", \"character_descriptions\": {\"Pip\": \"A small round silver robot, basketball-sized, with one cyan circular eye, two short arms with three-fingered hands, four tiny black wheels, and a red scarf tied on the left side.\", \"Marmalade\": \"A tiny orange tabby kitten with three dark stripes on each cheek, four white paws, round green eyes, a pink nose and a cream-tipped tail.\"}, \"scene\": {\"index\": 1, \"beat\": \"setup\", \"title\": \"A Rainy Round\", \"description\": \"Pip and Marmalade beside a leaf-covered city sidewalk at dusk, rain shining under amber streetlights.\", \"characters\": [\"Pip\", \"Marmalade\"], \"text\": \"Pip swept leaves along a rainy city sidewalk while Marmalade watched from a dry windowsill. The little robot liked tidy paths, and the kitten liked company. Every evening, they waited for the bakery to open.\"}, \"reference_image_base64\": null}"
               }
             ],
             "role": "user"
@@ -28,7 +28,7 @@
             "tool_uses": [
               {
                 "args": {
-                  "prompt": "Children's book cartoon illustration with bright vibrant colors, simple shapes, friendly characters. Scene: Standing before a towering enchanted castle with twisted magical spires, mystical atmosphere with glowing towers. Character descriptions: Sir Aria is Young female knight with shoulder-length auburn hair in a practical braid, kind hazel eyes with determined expression, medium height and athletic build, wearing polished silver chainmail with blue tunic underneath, brown leather boots and gloves, carries a simple wooden shield with her family crest (a golden tree), has a confident posture but gentle smile",
+                  "prompt": "Children's picture-book illustration for ages 4–8, warm watercolor textures, a consistent muted teal, coral and golden-yellow palette, soft outlines, simple uncluttered compositions, gentle lighting, expressive friendly characters. One single landscape illustration, no panels, captions, letters or watermarks added by the model. Scene: Standing before a towering enchanted castle with twisted magical spires, mystical atmosphere with glowing towers. Character descriptions: Sir Aria is Young female knight with shoulder-length auburn hair in a practical braid, kind hazel eyes with determined expression, medium height and athletic build, wearing polished silver chainmail with blue tunic underneath, brown leather boots and gloves, carries a simple wooden shield with her family crest (a golden tree), has a confident posture but gentle smile",
                   "aspect_ratio": "16:9",
                   "number_of_images": 1
                 },
@@ -39,11 +39,11 @@
           }
         },
         {
-          "invocation_id": "visual-session-002",
+          "invocation_id": "scene-002",
           "user_content": {
             "parts": [
               {
-                "text": "{\"scene_description\": \"Inside glowing castle halls facing magical floating crystals that pose riddles and tests\", \"character_descriptions\": {\"Sir Aria\": \"Young female knight with shoulder-length auburn hair in a practical braid, kind hazel eyes with determined expression, medium height and athletic build, wearing polished silver chainmail with blue tunic underneath, brown leather boots and gloves, carries a simple wooden shield with her family crest (a golden tree), has a confident posture but gentle smile\"}}"
+                "text": "{\"scene_description\": \"Pip noticing a faint golden glow behind a recycling bin in a narrow alley; Marmalade peering around the corner.\", \"character_descriptions\": {\"Pip\": \"A small round silver robot, basketball-sized, with one cyan circular eye, two short arms with three-fingered hands, four tiny black wheels, and a red scarf tied on the left side.\", \"Marmalade\": \"A tiny orange tabby kitten with three dark stripes on each cheek, four white paws, round green eyes, a pink nose and a cream-tipped tail.\"}, \"scene\": {\"index\": 2, \"beat\": \"inciting_incident\", \"title\": \"A Light in the Alley\", \"description\": \"Pip noticing a faint golden glow behind a recycling bin in a narrow alley; Marmalade peering around the corner.\", \"characters\": [\"Pip\", \"Marmalade\"], \"text\": \"Tonight, a golden blink appeared behind a recycling bin. Pip wondered whether someone had dropped a lantern. Marmalade stepped down, and together they rolled and padded into the alley to investigate the mysterious light.\"}, \"reference_image_base64\": \"reference-placeholder\"}"
               }
             ],
             "role": "user"
@@ -51,7 +51,7 @@
           "final_response": {
             "parts": [
               {
-                "text": "{\"success\": true, \"images_generated\": 1, \"images_in_bucket\": 1, \"bucket_name\": \"test-genmedia-bucket\", \"token_safe\": true, \"images\": [{\"index\": 0, \"gcs_url\": \"https://storage.googleapis.com/test-genmedia-bucket/generated_images/20241201_130100_crystal_hall_0_abc67890.png\", \"format\": \"png\", \"stored_in_bucket\": true}]}"
+                "text": "{\"success\": true, \"images_generated\": 1, \"images_in_bucket\": 1, \"bucket_name\": \"test-genmedia-bucket\", \"token_safe\": true, \"images\": [{\"index\": 0, \"gcs_url\": \"https://storage.googleapis.com/test-genmedia-bucket/generated_images/20241201_130000_castle_scene_0_xyz12345.png\", \"format\": \"png\", \"stored_in_bucket\": true}]}"
               }
             ],
             "role": "model"
@@ -60,7 +60,7 @@
             "tool_uses": [
               {
                 "args": {
-                  "prompt": "Children's book cartoon illustration with bright vibrant colors, simple shapes, friendly characters. Scene: Inside glowing castle halls facing magical floating crystals that pose riddles and tests. Character descriptions: Sir Aria is Young female knight with shoulder-length auburn hair in a practical braid, kind hazel eyes with determined expression, medium height and athletic build, wearing polished silver chainmail with blue tunic underneath, brown leather boots and gloves, carries a simple wooden shield with her family crest (a golden tree), has a confident posture but gentle smile",
+                  "prompt": "Children's picture-book illustration for ages 4–8, warm watercolor textures, a consistent muted teal, coral and golden-yellow palette, soft outlines, simple uncluttered compositions, gentle lighting, expressive friendly characters. One single landscape illustration, no panels, captions, letters or watermarks added by the model. Scene: Standing before a towering enchanted castle with twisted magical spires, mystical atmosphere with glowing towers. Character descriptions: Sir Aria is Young female knight with shoulder-length auburn hair in a practical braid, kind hazel eyes with determined expression, medium height and athletic build, wearing polished silver chainmail with blue tunic underneath, brown leather boots and gloves, carries a simple wooden shield with her family crest (a golden tree), has a confident posture but gentle smile",
                   "aspect_ratio": "16:9",
                   "number_of_images": 1
                 },
@@ -71,11 +71,11 @@
           }
         },
         {
-          "invocation_id": "visual-session-003",
+          "invocation_id": "scene-003",
           "user_content": {
             "parts": [
               {
-                "text": "{\"scene_description\": \"Magical sword appearing in burst of golden light, choosing its worthy wielder\", \"character_descriptions\": {\"Sir Aria\": \"Young female knight with shoulder-length auburn hair in a practical braid, kind hazel eyes with determined expression, medium height and athletic build, wearing polished silver chainmail with blue tunic underneath, brown leather boots and gloves, carries a simple wooden shield with her family crest (a golden tree), has a confident posture but gentle smile\"}}"
+                "text": "{\"scene_description\": \"Pip extending an arm toward a small glowing firefly trapped behind a puddle, using a folded leaf as a bridge while Marmalade holds it steady.\", \"character_descriptions\": {\"Pip\": \"A small round silver robot, basketball-sized, with one cyan circular eye, two short arms with three-fingered hands, four tiny black wheels, and a red scarf tied on the left side.\", \"Marmalade\": \"A tiny orange tabby kitten with three dark stripes on each cheek, four white paws, round green eyes, a pink nose and a cream-tipped tail.\"}, \"scene\": {\"index\": 3, \"beat\": \"first_attempt\", \"title\": \"The Leaf Bridge\", \"description\": \"Pip extending an arm toward a small glowing firefly trapped behind a puddle, using a folded leaf as a bridge while Marmalade holds it steady.\", \"characters\": [\"Pip\", \"Marmalade\"], \"text\": \"They found a firefly trapped behind a puddle. Pip offered a folded leaf as a bridge, and Marmalade held it steady with both paws. The firefly crawled closer, glowing hopefully toward the dry pavement.\"}, \"reference_image_base64\": \"reference-placeholder\"}"
               }
             ],
             "role": "user"
@@ -83,7 +83,7 @@
           "final_response": {
             "parts": [
               {
-                "text": "{\"success\": true, \"images_generated\": 1, \"images_in_bucket\": 1, \"bucket_name\": \"test-genmedia-bucket\", \"token_safe\": true, \"images\": [{\"index\": 0, \"gcs_url\": \"https://storage.googleapis.com/test-genmedia-bucket/generated_images/20241201_130200_sword_light_0_def34567.png\", \"format\": \"png\", \"stored_in_bucket\": true}]}"
+                "text": "{\"success\": true, \"images_generated\": 1, \"images_in_bucket\": 1, \"bucket_name\": \"test-genmedia-bucket\", \"token_safe\": true, \"images\": [{\"index\": 0, \"gcs_url\": \"https://storage.googleapis.com/test-genmedia-bucket/generated_images/20241201_130000_castle_scene_0_xyz12345.png\", \"format\": \"png\", \"stored_in_bucket\": true}]}"
               }
             ],
             "role": "model"
@@ -92,7 +92,7 @@
             "tool_uses": [
               {
                 "args": {
-                  "prompt": "Children's book cartoon illustration with bright vibrant colors, simple shapes, friendly characters. Scene: Magical sword appearing in burst of golden light, choosing its worthy wielder. Character descriptions: Sir Aria is Young female knight with shoulder-length auburn hair in a practical braid, kind hazel eyes with determined expression, medium height and athletic build, wearing polished silver chainmail with blue tunic underneath, brown leather boots and gloves, carries a simple wooden shield with her family crest (a golden tree), has a confident posture but gentle smile",
+                  "prompt": "Children's picture-book illustration for ages 4–8, warm watercolor textures, a consistent muted teal, coral and golden-yellow palette, soft outlines, simple uncluttered compositions, gentle lighting, expressive friendly characters. One single landscape illustration, no panels, captions, letters or watermarks added by the model. Scene: Standing before a towering enchanted castle with twisted magical spires, mystical atmosphere with glowing towers. Character descriptions: Sir Aria is Young female knight with shoulder-length auburn hair in a practical braid, kind hazel eyes with determined expression, medium height and athletic build, wearing polished silver chainmail with blue tunic underneath, brown leather boots and gloves, carries a simple wooden shield with her family crest (a golden tree), has a confident posture but gentle smile",
                   "aspect_ratio": "16:9",
                   "number_of_images": 1
                 },
@@ -103,11 +103,11 @@
           }
         },
         {
-          "invocation_id": "visual-session-004",
+          "invocation_id": "scene-004",
           "user_content": {
             "parts": [
               {
-                "text": "{\"scene_description\": \"Returning to village, using sword's power to lift the shadow curse and restore joy\", \"character_descriptions\": {\"Sir Aria\": \"Young female knight with shoulder-length auburn hair in a practical braid, kind hazel eyes with determined expression, medium height and athletic build, wearing polished silver chainmail with blue tunic underneath, brown leather boots and gloves, carries a simple wooden shield with her family crest (a golden tree), has a confident posture but gentle smile\"}}"
+                "text": "{\"scene_description\": \"A raindrop splashing into the puddle and tipping the leaf bridge; Pip bracing the leaf while Marmalade reaches for the firefly.\", \"character_descriptions\": {\"Pip\": \"A small round silver robot, basketball-sized, with one cyan circular eye, two short arms with three-fingered hands, four tiny black wheels, and a red scarf tied on the left side.\", \"Marmalade\": \"A tiny orange tabby kitten with three dark stripes on each cheek, four white paws, round green eyes, a pink nose and a cream-tipped tail.\"}, \"scene\": {\"index\": 4, \"beat\": \"setback\", \"title\": \"A Splash and a Slide\", \"description\": \"A raindrop splashing into the puddle and tipping the leaf bridge; Pip bracing the leaf while Marmalade reaches for the firefly.\", \"characters\": [\"Pip\", \"Marmalade\"], \"text\": \"Then a fat raindrop splashed down. The leaf tipped, and the firefly slipped backward. Pip's wheels skidded, but he caught the stem. Marmalade crouched beside him, thinking carefully instead of rushing into the water.\"}, \"reference_image_base64\": \"reference-placeholder\"}"
               }
             ],
             "role": "user"
@@ -115,7 +115,7 @@
           "final_response": {
             "parts": [
               {
-                "text": "{\"success\": true, \"images_generated\": 1, \"images_in_bucket\": 1, \"bucket_name\": \"test-genmedia-bucket\", \"token_safe\": true, \"images\": [{\"index\": 0, \"gcs_url\": \"https://storage.googleapis.com/test-genmedia-bucket/generated_images/20241201_130300_village_victory_0_ghi78901.png\", \"format\": \"png\", \"stored_in_bucket\": true}]}"
+                "text": "{\"success\": true, \"images_generated\": 1, \"images_in_bucket\": 1, \"bucket_name\": \"test-genmedia-bucket\", \"token_safe\": true, \"images\": [{\"index\": 0, \"gcs_url\": \"https://storage.googleapis.com/test-genmedia-bucket/generated_images/20241201_130000_castle_scene_0_xyz12345.png\", \"format\": \"png\", \"stored_in_bucket\": true}]}"
               }
             ],
             "role": "model"
@@ -124,7 +124,71 @@
             "tool_uses": [
               {
                 "args": {
-                  "prompt": "Children's book cartoon illustration with bright vibrant colors, simple shapes, friendly characters. Scene: Returning to village, using sword's power to lift the shadow curse and restore joy. Character descriptions: Sir Aria is Young female knight with shoulder-length auburn hair in a practical braid, kind hazel eyes with determined expression, medium height and athletic build, wearing polished silver chainmail with blue tunic underneath, brown leather boots and gloves, carries a simple wooden shield with her family crest (a golden tree), has a confident posture but gentle smile",
+                  "prompt": "Children's picture-book illustration for ages 4–8, warm watercolor textures, a consistent muted teal, coral and golden-yellow palette, soft outlines, simple uncluttered compositions, gentle lighting, expressive friendly characters. One single landscape illustration, no panels, captions, letters or watermarks added by the model. Scene: Standing before a towering enchanted castle with twisted magical spires, mystical atmosphere with glowing towers. Character descriptions: Sir Aria is Young female knight with shoulder-length auburn hair in a practical braid, kind hazel eyes with determined expression, medium height and athletic build, wearing polished silver chainmail with blue tunic underneath, brown leather boots and gloves, carries a simple wooden shield with her family crest (a golden tree), has a confident posture but gentle smile",
+                  "aspect_ratio": "16:9",
+                  "number_of_images": 1
+                },
+                "name": "generate_image"
+              }
+            ],
+            "intermediate_responses": []
+          }
+        },
+        {
+          "invocation_id": "scene-005",
+          "user_content": {
+            "parts": [
+              {
+                "text": "{\"scene_description\": \"Marmalade anchoring a broad piece of bark while Pip lifts it into a stable bridge; the firefly stepping safely onto dry pavement.\", \"character_descriptions\": {\"Pip\": \"A small round silver robot, basketball-sized, with one cyan circular eye, two short arms with three-fingered hands, four tiny black wheels, and a red scarf tied on the left side.\", \"Marmalade\": \"A tiny orange tabby kitten with three dark stripes on each cheek, four white paws, round green eyes, a pink nose and a cream-tipped tail.\"}, \"scene\": {\"index\": 5, \"beat\": \"climax\", \"title\": \"A Better Way Across\", \"description\": \"Marmalade anchoring a broad piece of bark while Pip lifts it into a stable bridge; the firefly stepping safely onto dry pavement.\", \"characters\": [\"Pip\", \"Marmalade\"], \"text\": \"Marmalade spotted a broad piece of bark. She anchored one end while Pip lifted the other into place. Their wider bridge stayed still, and the firefly stepped across. Pip cheered so loudly his scarf fluttered.\"}, \"reference_image_base64\": \"reference-placeholder\"}"
+              }
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {
+                "text": "{\"success\": true, \"images_generated\": 1, \"images_in_bucket\": 1, \"bucket_name\": \"test-genmedia-bucket\", \"token_safe\": true, \"images\": [{\"index\": 0, \"gcs_url\": \"https://storage.googleapis.com/test-genmedia-bucket/generated_images/20241201_130000_castle_scene_0_xyz12345.png\", \"format\": \"png\", \"stored_in_bucket\": true}]}"
+              }
+            ],
+            "role": "model"
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "args": {
+                  "prompt": "Children's picture-book illustration for ages 4–8, warm watercolor textures, a consistent muted teal, coral and golden-yellow palette, soft outlines, simple uncluttered compositions, gentle lighting, expressive friendly characters. One single landscape illustration, no panels, captions, letters or watermarks added by the model. Scene: Standing before a towering enchanted castle with twisted magical spires, mystical atmosphere with glowing towers. Character descriptions: Sir Aria is Young female knight with shoulder-length auburn hair in a practical braid, kind hazel eyes with determined expression, medium height and athletic build, wearing polished silver chainmail with blue tunic underneath, brown leather boots and gloves, carries a simple wooden shield with her family crest (a golden tree), has a confident posture but gentle smile",
+                  "aspect_ratio": "16:9",
+                  "number_of_images": 1
+                },
+                "name": "generate_image"
+              }
+            ],
+            "intermediate_responses": []
+          }
+        },
+        {
+          "invocation_id": "scene-006",
+          "user_content": {
+            "parts": [
+              {
+                "text": "{\"scene_description\": \"Pip, Marmalade and the freed firefly resting beneath the bakery awning, warm bread visible in the window and the rain easing.\", \"character_descriptions\": {\"Pip\": \"A small round silver robot, basketball-sized, with one cyan circular eye, two short arms with three-fingered hands, four tiny black wheels, and a red scarf tied on the left side.\", \"Marmalade\": \"A tiny orange tabby kitten with three dark stripes on each cheek, four white paws, round green eyes, a pink nose and a cream-tipped tail.\"}, \"scene\": {\"index\": 6, \"beat\": \"resolution\", \"title\": \"Warmth for Three\", \"description\": \"Pip, Marmalade and the freed firefly resting beneath the bakery awning, warm bread visible in the window and the rain easing.\", \"characters\": [\"Pip\", \"Marmalade\"], \"text\": \"The baker welcomed all three beneath her awning. Marmalade curled beside Pip, and the firefly glowed above them like a tiny star. The path could wait until morning; helping a new friend had made tonight perfect.\"}, \"reference_image_base64\": \"reference-placeholder\"}"
+              }
+            ],
+            "role": "user"
+          },
+          "final_response": {
+            "parts": [
+              {
+                "text": "{\"success\": true, \"images_generated\": 1, \"images_in_bucket\": 1, \"bucket_name\": \"test-genmedia-bucket\", \"token_safe\": true, \"images\": [{\"index\": 0, \"gcs_url\": \"https://storage.googleapis.com/test-genmedia-bucket/generated_images/20241201_130000_castle_scene_0_xyz12345.png\", \"format\": \"png\", \"stored_in_bucket\": true}]}"
+              }
+            ],
+            "role": "model"
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "args": {
+                  "prompt": "Children's picture-book illustration for ages 4–8, warm watercolor textures, a consistent muted teal, coral and golden-yellow palette, soft outlines, simple uncluttered compositions, gentle lighting, expressive friendly characters. One single landscape illustration, no panels, captions, letters or watermarks added by the model. Scene: Standing before a towering enchanted castle with twisted magical spires, mystical atmosphere with glowing towers. Character descriptions: Sir Aria is Young female knight with shoulder-length auburn hair in a practical braid, kind hazel eyes with determined expression, medium height and athletic build, wearing polished silver chainmail with blue tunic underneath, brown leather boots and gloves, carries a simple wooden shield with her family crest (a golden tree), has a confident posture but gentle smile",
                   "aspect_ratio": "16:9",
                   "number_of_images": 1
                 },
@@ -166,7 +230,7 @@
             "tool_uses": [
               {
                 "args": {
-                  "prompt": "Children's book cartoon illustration with bright vibrant colors, simple shapes, friendly characters. Scene: Rolling along wet city streets at night, glowing neon signs reflecting on the rainy pavement, urban atmosphere with fallen leaves scattered around. Character descriptions: Unit 7 is Small round robot (basketball-sized), shiny metallic silver body with chrome finish, perfectly spherical with smooth curves, single bright cyan-blue circular LED eye (3 inches diameter) centered on front, two thin retractable mechanical arms with three-fingered grippers, moves on four small black rubber wheels hidden underneath; Lost Kitten is Tiny 8-week-old kitten, bright orange tabby with distinct dark orange tiger stripes, pure white paws like little socks, large emerald green eyes with vertical pupils, pink button nose, fluffy medium-length fur",
+                  "prompt": "Children's picture-book illustration for ages 4–8, warm watercolor textures, a consistent muted teal, coral and golden-yellow palette, soft outlines, simple uncluttered compositions, gentle lighting, expressive friendly characters. One single landscape illustration, no panels, captions, letters or watermarks added by the model. Scene: Rolling along wet city streets at night, glowing neon signs reflecting on the rainy pavement, urban atmosphere with fallen leaves scattered around. Character descriptions: Unit 7 is Small round robot (basketball-sized), shiny metallic silver body with chrome finish, perfectly spherical with smooth curves, single bright cyan-blue circular LED eye (3 inches diameter) centered on front, two thin retractable mechanical arms with three-fingered grippers, moves on four small black rubber wheels hidden underneath; Lost Kitten is Tiny 8-week-old kitten, bright orange tabby with distinct dark orange tiger stripes, pure white paws like little socks, large emerald green eyes with vertical pupils, pink button nose, fluffy medium-length fur",
                   "aspect_ratio": "16:9",
                   "number_of_images": 1
                 },
@@ -198,7 +262,7 @@
             "tool_uses": [
               {
                 "args": {
-                  "prompt": "Children's book cartoon illustration with bright vibrant colors, simple shapes, friendly characters. Scene: Inside a warm bakery, kind baker in apron offering a saucer of milk, cozy interior with bread on shelves. Character descriptions: Unit 7 is Small round robot (basketball-sized), shiny metallic silver body with chrome finish, perfectly spherical with smooth curves, single bright cyan-blue circular LED eye (3 inches diameter) centered on front, two thin retractable mechanical arms with three-fingered grippers, moves on four small black rubber wheels hidden underneath; Lost Kitten is Tiny 8-week-old kitten, bright orange tabby with distinct dark orange tiger stripes, pure white paws like little socks, large emerald green eyes with vertical pupils, pink button nose, fluffy medium-length fur",
+                  "prompt": "Children's picture-book illustration for ages 4–8, warm watercolor textures, a consistent muted teal, coral and golden-yellow palette, soft outlines, simple uncluttered compositions, gentle lighting, expressive friendly characters. One single landscape illustration, no panels, captions, letters or watermarks added by the model. Scene: Inside a warm bakery, kind baker in apron offering a saucer of milk, cozy interior with bread on shelves. Character descriptions: Unit 7 is Small round robot (basketball-sized), shiny metallic silver body with chrome finish, perfectly spherical with smooth curves, single bright cyan-blue circular LED eye (3 inches diameter) centered on front, two thin retractable mechanical arms with three-fingered grippers, moves on four small black rubber wheels hidden underneath; Lost Kitten is Tiny 8-week-old kitten, bright orange tabby with distinct dark orange tiger stripes, pure white paws like little socks, large emerald green eyes with vertical pupils, pink button nose, fluffy medium-length fur",
                   "aspect_ratio": "16:9",
                   "number_of_images": 1
                 },
@@ -286,7 +350,7 @@
             "tool_uses": [
               {
                 "args": {
-                  "prompt": "Children's book cartoon illustration with bright vibrant colors, simple shapes, friendly characters. Scene: Plain text scene without JSON: A simple garden with flowers.",
+                  "prompt": "Children's picture-book illustration for ages 4–8, warm watercolor textures, a consistent muted teal, coral and golden-yellow palette, soft outlines, simple uncluttered compositions, gentle lighting, expressive friendly characters. One single landscape illustration, no panels, captions, letters or watermarks added by the model. Scene: Plain text scene without JSON: A simple garden with flowers.",
                   "aspect_ratio": "16:9",
                   "number_of_images": 1
                 },

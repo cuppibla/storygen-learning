@@ -1,0 +1,9 @@
+{
+  "name": "storygen-learning-checks",
+  "private": true,
+  "scripts": {
+    "test": "node --experimental-strip-types --test tests/story-contract.test.mjs",
+    "test:render": "node tests/render-story-frames.mjs",
+    "check:sync": "python3 tools/sync_workshop.py --check"
+  }
+}

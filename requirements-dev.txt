@@ -1,0 +1,4 @@
+-r shared/backend/requirements.txt
+pytest>=8,<10
+httpx>=0.27,<1
+PyYAML>=6,<7

@@ -168,7 +168,7 @@ echo "==============="
 if [ -n "$GOOGLE_API_KEY" ]; then
     API_KEY="$GOOGLE_API_KEY"
     echo -e "${GREEN}✅ Using GOOGLE_API_KEY from .env file${NC}"
-    echo "API key loaded (first 10 chars): ${API_KEY:0:10}..."
+    echo "API key loaded from the local environment; value not displayed."
 else
     echo "Get your Gemini API key from: https://aistudio.google.com/"
     echo ""
@@ -192,7 +192,7 @@ fi
 echo ""
 if [ "$UPDATING" = true ]; then
     echo "🔄 Updating existing secret..."
-    echo -n "$API_KEY" | gcloud secrets versions add "$SECRET_NAME" \
+    printf '%s' "$API_KEY" | gcloud secrets versions add "$SECRET_NAME" \
         --data-file=- \
         --project="$PROJECT_ID"
     echo -e "${GREEN}✅ Secret updated successfully${NC}"
@@ -204,7 +204,7 @@ else
         --project="$PROJECT_ID"
     
     # Add the API key
-    echo -n "$API_KEY" | gcloud secrets versions add "$SECRET_NAME" \
+    printf '%s' "$API_KEY" | gcloud secrets versions add "$SECRET_NAME" \
         --data-file=- \
         --project="$PROJECT_ID"
     echo -e "${GREEN}✅ Secret created successfully${NC}"

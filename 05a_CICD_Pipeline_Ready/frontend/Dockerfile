@@ -1,37 +1,12 @@
-# Use Node.js 18 runtime as a parent image
-FROM node:18-alpine
-
-# Set the working directory in the container
+FROM node:22-alpine
 WORKDIR /app
-
-# Install pnpm globally
-RUN npm install -g pnpm
-
-# Copy package files
-COPY package*.json ./
-
-# Copy lockfile if it exists (using wildcard to make it optional)
-COPY pnpm-lock.yaml* ./
-
-# Install dependencies
-# Use --no-frozen-lockfile to allow regenerating lockfile if needed
-# This is more flexible for development and CI environments
-RUN pnpm install --no-frozen-lockfile
-
-# Copy the rest of the application code
+ENV NEXT_TELEMETRY_DISABLED=1
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 COPY . .
-
-# Accept build argument for backend URL
-ARG NEXT_PUBLIC_BACKEND_URL
-
-# Set the environment variable for build
+# NEXT_PUBLIC_* values are compiled into the browser bundle at build time.
+ARG NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
 ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
-
-# Build the Next.js application
-RUN pnpm build
-
-# Expose port 3000
+RUN npm run build
 EXPOSE 3000
-
-# Start the application
-CMD ["pnpm", "start"]
+CMD ["npm", "start", "--", "--hostname", "0.0.0.0"]

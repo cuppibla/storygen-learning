@@ -1,123 +1,75 @@
-# StoryGen - AI-Powered Children's Story Generator
+# StoryGen — six-scene illustrated stories
 
-A real-time story generation application that creates illustrated children's stories using AI. The app generates structured 4-scene stories with consistent character illustrations using Google's Gemini and Imagen models.
+StoryGen creates gentle illustrated children's stories using Google Gemini for text, Google Gemini Image for illustrations, FastAPI/WebSockets for progress, and Next.js for the reader. The current UI offers a **four-scene free story**; the six-scene personalised upgrade is not yet available.
 
-## Features
+## The six-scene arc
 
-- **Real-time Story Generation**: Create stories from keywords using Google Gemini
-- **Consistent Character Design**: AI-generated illustrations maintain character consistency across all scenes
-- **4-Scene Structure**: Each story follows a classic narrative arc (Setup → Inciting Incident → Climax → Resolution)
-- **WebSocket Communication**: Real-time updates between frontend and backend
-- **Image Generation**: Automatic illustration generation using Google Imagen
-- **Modern UI**: Beautiful, responsive interface built with Next.js and Tailwind CSS
+| Scene | Beat | Purpose |
+|---|---|---|
+| 1 | Setup | Introduce the character, world, and what matters |
+| 2 | Inciting Incident | A discovery or problem changes the plan |
+| 3 | First Attempt | The character tries a concrete plan |
+| 4 | Setback | The plan hits a complication; pause, feel, rethink |
+| 5 | Climax | Use what was learned in the decisive attempt |
+| 6 | Resolution | Show the result and emotional payoff |
 
-## Architecture
+The default story is 180–270 words for ages 4–8. Each scene has a stable index, beat, descriptive title, visible action, character cast, and 25–50 words of story text. The backend validates the complete contract before generating images and allows one corrective model turn for invalid structure.
 
-- **Frontend**: Next.js 14 with TypeScript, Tailwind CSS, and WebSocket communication
-- **Backend**: FastAPI with WebSocket support, Google ADK for AI agents
-- **AI Models**: 
-  - Story Generation: Google Gemini 1.5 Flash
-  - Image Generation: Google Imagen via Vertex AI
-- **Storage**: Google Cloud Storage for generated images
+Illustrations use a locked style, scene-specific character lists, and the first successful illustration as a reference for later scenes. This improves continuity but does **not** guarantee identical characters.
 
-## Prerequisites
+**Monetisation status:** Free four-scene generation is connected to the chooser; Upgrade is explicitly marked unavailable. The legacy six-scene keyword API still exists as an unauthenticated workshop demo, not a paid or protected product. Stripe Checkout, verified entitlements and purchase recovery are not implemented; do not accept payments or advertise those features yet. See [REVIEW.md](REVIEW.md).
 
-- **Docker and Docker Compose**: [Install here](https://docs.docker.com/get-docker/)
-- **Google Cloud Account**: Required for Vertex AI (Imagen) and GCS.
-- **Node.js and npm**: For frontend dependency management.
+## Start here
 
-## 🚀 Local Development with Docker
+- **[SETUP.md](SETUP.md)** — where to put credentials, local startup, model settings, and deployment checklist.
+- **[REVIEW.md](REVIEW.md)** — what changed, why, verification, and remaining production risks.
+- **`04b_Manual_Deployment_Done/`** — the complete deployment snapshot used by the workshop CI/CD example.
 
-This is the recommended way to run StoryGen locally. It uses Docker Compose to set up the frontend and backend services, ensuring a consistent and isolated development environment.
+There is no root Docker Compose application. Run a chosen snapshot directly, or use its Dockerfiles. The old root quick-start instructions referred to files that were not present.
 
-1.  **Configure Backend Environment**:
-    -   Navigate to the `backend` directory.
-    -   Create a `.env` file from the example: `cp env.example .env`
-    -   Edit the `.env` file and add your Google Cloud credentials:
-        ```env
-        GOOGLE_CLOUD_PROJECT_ID="your-gcp-project-id"
-        GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/service-account.json"
-        GENMEDIA_BUCKET="your-gcs-bucket-name"
-        ```
-    -   **Important**: Make sure the path to your service account JSON file is accessible from where you run Docker. A good practice is to place the key in a secure location and provide an absolute path.
+## Workshop snapshots
 
-2.  **Start the Application**:
-    -   From the project's root directory, run:
-        ```bash
-        docker-compose up --build
-        ```
-    -   This command will:
-        -   Build the Docker images for both the frontend and backend.
-        -   Start both services.
-        -   Enable hot-reloading, so your changes to the code are reflected instantly.
+| Folder | Purpose |
+|---|---|
+| `00_Starting_Here` | Shared Python requirements and authentication helpers |
+| `01a` / `01b` | First story-agent exercise / completed agent |
+| `02a` / `02b` | Image-agent exercise / completed agent |
+| `03a` / `03b` | Evaluation exercise / completed evaluation fixtures |
+| `04a` / `04b` | Manual deployment exercise / completed deployment |
+| `05a` | CI/CD-ready application snapshot |
+| `06_Final_Solution` | CI/CD configuration and deployment workflow templates |
 
-3.  **Access the Application**:
-    -   **Frontend**: `http://localhost:3000`
-    -   **Backend**: `http://localhost:8000`
+The intentional `root_agent = None` exercises remain in the Ready snapshots. Shared contract/UI code is maintained in `shared/` and copied into each standalone snapshot so Docker build contexts remain self-contained:
 
-4.  **Stopping the Application**:
-    -   Press `Ctrl + C` in the terminal where `docker-compose` is running.
-    -   To remove the containers, run `docker-compose down`.
-
-## ☁️ Production Deployment
-
-For deploying the application to a production environment, please refer to the instructions in `DEPLOYMENT.md`. This guide provides detailed steps for deploying to Google Cloud Run.
-
-## Usage
-
-1. Open the application in your browser
-2. Enter keywords for your story (e.g., "cat eat fish")
-3. Click "Generate Story"
-4. Watch as the story and illustrations are generated in real-time
-5. View the complete 4-scene story with consistent character illustrations
-
-## Project Structure
-
-```
-storygen-main/
-├── backend/
-│   ├── main.py                 # FastAPI server with WebSocket endpoints
-│   ├── story_agent/
-│   │   ├── agent.py            # Story generation agent
-│   │   ├── direct_image_agent.py # Image generation agent
-│   │   └── imagen_tool_direct.py # Imagen integration
-│   └── requirements.txt
-├── frontend/
-│   ├── app/                    # Next.js app directory
-│   ├── components/             # React components
-│   └── package.json
-├── README.md
-└── .gitignore
+```bash
+python tools/sync_workshop.py
+python tools/sync_workshop.py --check
 ```
 
-## API Endpoints
+## Checks
 
-- `GET /health` - Health check
-- `GET /` - API info
-- `WebSocket /ws/{user_id}` - Real-time story generation
+```bash
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
+npm test
+python tools/sync_workshop.py --check
+# After npm ci in 04b's frontend:
+npm run test:render
+```
 
-## Environment Variables
+Frontend type-check/build for the deployment snapshot:
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `GOOGLE_CLOUD_PROJECT_ID` | Google Cloud Project ID | Yes |
-| `GOOGLE_APPLICATION_CREDENTIALS` | Path to service account key | Yes |
-| `GENMEDIA_BUCKET` | GCS bucket for image storage | Yes |
+```bash
+cd 04b_Manual_Deployment_Done/frontend
+npm ci
+npx tsc --noEmit
+npm run build
+```
 
-## Contributing
+The root GitHub Actions workflow runs credential-free checks. The deployment workflow under `06_Final_Solution/.github/` is a workshop template; it is not activated merely by being nested in this repository. No cloud deployment is performed by the test workflow.
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+## Configuration and safety
 
-## License
+Never put API keys in `NEXT_PUBLIC_*` variables, frontend files, Git, or chat. Use the backend `.env` file locally and Secret Manager/ADC in production. See [SETUP.md](SETUP.md).
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- Google Gemini and Imagen for AI capabilities
-- Next.js and FastAPI for the web framework
-- Tailwind CSS for styling
+Generated images are sent inline or stored privately with short-lived signed URLs. The application does not make image objects public. The demo backend is still unauthenticated: add authentication, rate limits, budget controls, and a retention policy before offering it to the public.

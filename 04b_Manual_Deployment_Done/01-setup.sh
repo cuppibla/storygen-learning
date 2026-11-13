@@ -122,7 +122,7 @@ if ! gcloud secrets describe "$SECRET_NAME" --project="$PROJECT_ID" &>/dev/null;
     if [ -n "$GOOGLE_API_KEY" ]; then
         echo "🔑 Using API key from .env file..."
         echo "📦 Adding API key to secret..."
-        echo -n "$GOOGLE_API_KEY" | gcloud secrets versions add "$SECRET_NAME" --data-file=- --project="$PROJECT_ID"
+        printf '%s' "$GOOGLE_API_KEY" | gcloud secrets versions add "$SECRET_NAME" --data-file=- --project="$PROJECT_ID"
         echo -e "${GREEN}✅ API key added to Secret Manager successfully${NC}"
     else
         echo -e "${RED}❌ GOOGLE_API_KEY not found in .env file${NC}"
@@ -135,7 +135,7 @@ else
     # Update secret with current API key from .env
     if [ -n "$GOOGLE_API_KEY" ]; then
         echo "🔄 Updating secret with API key from .env file..."
-        echo -n "$GOOGLE_API_KEY" | gcloud secrets versions add "$SECRET_NAME" --data-file=- --project="$PROJECT_ID"
+        printf '%s' "$GOOGLE_API_KEY" | gcloud secrets versions add "$SECRET_NAME" --data-file=- --project="$PROJECT_ID"
         echo -e "${GREEN}✅ Secret updated with latest API key${NC}"
     else
         echo -e "${YELLOW}⚠️ GOOGLE_API_KEY not found in .env file - secret not updated${NC}"

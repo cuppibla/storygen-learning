@@ -33,7 +33,8 @@ module "backend-service" {
   project_id                    = var.project_id
   location                      = var.region
   service_name                  = var.backend_service_name
-  containers                    = [{"container_image" = var.backend_image, "container_name" = "backend-container", "env_vars" = {"GOOGLE_CLOUD_PROJECT_ID" = var.project_id, "GENMEDIA_BUCKET" = var.bucket_name, "GOOGLE_GENAI_USE_VERTEXAI" = "FALSE"}, "ports" = {"container_port" = 8080, "name" = "http1"}, "resources" = {"limits" = {"memory" = "2Gi", "cpu" = "2000m"}}, "env_vars_secret" = {"GOOGLE_API_KEY" = {"secret_name" = var.secret_name, "secret_version" = "latest"}}}]
+  timeout                       = "600s"
+  containers                    = [{"container_image" = var.backend_image, "container_name" = "backend-container", "env_vars" = {"GOOGLE_CLOUD_PROJECT_ID" = var.project_id, "GENMEDIA_BUCKET" = var.bucket_name, "GOOGLE_GENAI_USE_VERTEXAI" = "FALSE", "GOOGLE_CLOUD_REGION" = var.region, "STORY_MODEL" = var.story_model, "IMAGE_MODEL" = var.image_model}, "ports" = {"container_port" = 8080, "name" = "http1"}, "resources" = {"limits" = {"memory" = "2Gi", "cpu" = "2000m"}}, "env_vars_secret" = {"GOOGLE_API_KEY" = {"secret_name" = var.secret_name, "secret_version" = "latest"}}}]
   service_account_project_roles = ["roles/aiplatform.user", "roles/secretmanager.secretAccessor"]
   # VPC access removed to avoid networking permissions issues
   # vpc_access = {

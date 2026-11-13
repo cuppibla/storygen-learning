@@ -1,7 +1,6 @@
-import "./globals.css";
-import type { Metadata } from "next";
-import { Inter } from 'next/font/google';
-import { ThemeProvider } from "@/components/theme-provider";
+import './globals.css';
+import type { Metadata } from 'next';
+import { ThemeProvider } from '@/components/theme-provider';
 
 declare global {
   interface Window {
@@ -10,28 +9,17 @@ declare global {
   }
 }
 
-const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
-  title: "StoryGen - AI Storytelling App",
-  description: "Generate captivating stories from keywords",
-    generator: 'v0.dev'
+  title: 'StoryGen — Six-Scene Adventures',
+  description: 'Create gentle, illustrated six-scene stories for children from a few keywords.',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-gray-50 dark:bg-gray-900 transition-colors`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+      {/* System fonts keep builds reproducible without a runtime Google Fonts request. */}
+      <body className="font-sans antialiased transition-colors">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
         </ThemeProvider>
       </body>
